@@ -3,7 +3,7 @@
 // Add/move/change buildings, animals, messages, rewards, quests, colors, and speed here.
 window.WHISKERWOOD={
   schema:1,
-  build:"rapid-3",
+  build:"rapid-4",
   viewport:{w:480,h:270},
   player:{
     start:{x:240,y:170},
@@ -63,6 +63,18 @@ window.WHISKERWOOD={
       id:"forest",label:"FOREST",x:80,y:210,w:105,h:52,color:"#56825b",emoji:"🌲",
       interaction:{message:"A squirrel wants to play! 🐿️"}
     }
+  ],
+
+  // Town characters are data-only so new friends can be added instantly.
+  characters:[
+    {id:"miss-maple",name:"Miss Maple",x:265,y:110,coat:"#c98252",shirt:"#8a69a8",interaction:{message:"Miss Maple: Good morning! Drawing time is after playground! 🎨"}},
+    {id:"milo",name:"Milo",x:300,y:137,coat:"#e4b86d",shirt:"#5d8dbb",interaction:{message:"Milo: Race you to the slide! 🛝"}},
+    {id:"luna",name:"Luna",x:344,y:132,coat:"#d9d7d2",shirt:"#d47d9b",interaction:{message:"Luna: I love the swings! Want to play? 💕"}},
+    {id:"pepper",name:"Pepper",x:405,y:143,coat:"#56545b",shirt:"#d49b55",interaction:{message:"Pepper: The market has the BEST cupcakes. 🧁"}},
+    {id:"ginger",name:"Ginger",x:355,y:196,coat:"#d47743",shirt:"#72a56d",interaction:{message:"Ginger: I saw a frog at the lake! 🐸"}},
+    {id:"snowball",name:"Snowball",x:205,y:202,coat:"#f0eee8",shirt:"#73a4bd",interaction:{message:"Snowball: I'm collecting flowers for my room! 🌼"}},
+    {id:"mochi",name:"Mochi",x:110,y:176,coat:"#c6a886",shirt:"#b6769d",interaction:{message:"Mochi: We can build things together if we find wood! 🪵"}},
+    {id:"bean",name:"Bean",x:62,y:128,coat:"#9b765e",shirt:"#7d9c58",interaction:{message:"Bean: Hi! I live right around the corner! 🏠"}}
   ],
 
   // Animals are intentionally data-only. To add one, copy a single line.
