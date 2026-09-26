@@ -39,48 +39,76 @@ var BASE_W=480, BASE_H=270;
 var c=document.getElementById("game"), g=c.getContext("2d");
 var W=BASE_W,H=BASE_H,offX=0,offY=0;
 var key={left:false,right:false,up:false,down:false};
-var p={x:240,y:170}, coins=0, msg="Go to school! 🎒", school=false, wood=0, built=0;
-var food={apple:0,toast:0,carrot:0};
-var removed={};
+var p={x:240,y:170},coins=0,msg="Go explore Whiskerwood! 🎒",school=false,wood=0,built=0,scene="town";
+var food={apple:0,toast:0,carrot:0},removed={};
 
-var locations=[
- {id:"home",label:"MY HOUSE",x:80,y:78,w:86,h:54,col:"#d8b17a",icon:"🏠",msg:"Home sweet home! 🏠"},
- {id:"school",label:"SCHOOL",x:240,y:60,w:104,h:56,col:"#d89c72",icon:"🕘",msg:"You made it to school! ⭐"},
- {id:"slide",label:"SLIDE",x:325,y:96,w:44,h:30,col:"#e6c74f",icon:"🛝",msg:"Wheeee! Down the slide! 🛝"},
- {id:"swings",label:"SWINGS",x:374,y:62,w:50,h:30,col:"#78a7ce",icon:"🎠",msg:"Higher and higher! Wheee!"},
- {id:"sandbox",label:"SAND",x:150,y:105,w:48,h:30,col:"#e7cb82",icon:"🏖️",msg:"You made a cat-ear sand castle!"},
- {id:"draw",label:"DRAW",x:185,y:66,w:44,h:28,col:"#c88cc9",icon:"🎨",msg:"Drawing time!"},
- {id:"wood",label:"WOOD",x:120,y:146,w:44,h:25,col:"#a9774e",icon:"🪵",msg:"You picked up wood!"},
- {id:"build",label:"BUILD",x:166,y:146,w:46,h:25,col:"#9e8a6b",icon:"🔨",msg:"Open your backpack to build!"},
- {id:"market",label:"MARKET",x:390,y:108,w:76,h:46,col:"#d8798e",icon:"🧁",msg:"The market smells like cupcakes!"},
- {id:"lake",label:"LAKE",x:392,y:211,w:90,h:46,col:"#71aeca",icon:"🐟",msg:"A frog waves from the lake!"},
- {id:"forest",label:"FOREST",x:82,y:212,w:102,h:50,col:"#56825b",icon:"🌲",msg:"The forest is full of adventures!"}
+var town=[
+ {id:"home",label:"MY HOUSE",x:76,y:76,w:86,h:54,col:"#d8b17a",icon:"🏠",enter:"home"},
+ {id:"school",label:"SCHOOL",x:238,y:58,w:104,h:56,col:"#d89c72",icon:"🏫",enter:"school"},
+ {id:"market",label:"MARKET",x:390,y:106,w:76,h:46,col:"#d8798e",icon:"🧁",enter:"market"},
+ {id:"park",label:"PARK",x:346,y:202,w:90,h:48,col:"#79a96a",icon:"🌳",enter:"park"},
+ {id:"lake",label:"LAKE",x:432,y:205,w:72,h:44,col:"#71aeca",icon:"🐟",enter:"lake"},
+ {id:"forest",label:"FOREST",x:83,y:211,w:102,h:50,col:"#56825b",icon:"🌲",enter:"forest"}
 ];
 
 var people=[
- {name:"Miss Maple",x:265,y:112,coat:"#c98252",shirt:"#8a69a8",msg:"Miss Maple: Good morning! 🎨"},
- {name:"Milo",x:300,y:138,coat:"#e4b86d",shirt:"#5d8dbb",msg:"Milo: Race you to the slide!"},
- {name:"Luna",x:344,y:132,coat:"#d9d7d2",shirt:"#d47d9b",msg:"Luna: Let's play on the swings!"},
- {name:"Pepper",x:406,y:146,coat:"#56545b",shirt:"#d49b55",msg:"Pepper: Cupcakes are my favorite!"},
- {name:"Ginger",x:355,y:197,coat:"#d47743",shirt:"#72a56d",msg:"Ginger: I saw a frog!"},
- {name:"Snowball",x:205,y:204,coat:"#f0eee8",shirt:"#73a4bd",msg:"Snowball: I'm collecting flowers!"},
- {name:"Mochi",x:110,y:177,coat:"#c6a886",shirt:"#b6769d",msg:"Mochi: Let's build something!"},
- {name:"Bean",x:62,y:130,coat:"#9b765e",shirt:"#7d9c58",msg:"Bean: Hi neighbor!"}
+ {name:"Miss Maple",x:265,y:112,coat:"#c98252",shirt:"#8a69a8",msg:"Miss Maple: Come inside school! 🎨"},
+ {name:"Milo",x:300,y:138,coat:"#e4b86d",shirt:"#5d8dbb",msg:"Milo: The park has a giant slide!"},
+ {name:"Luna",x:344,y:132,coat:"#d9d7d2",shirt:"#d47d9b",msg:"Luna: Meet me at the swings!"},
+ {name:"Pepper",x:405,y:146,coat:"#56545b",shirt:"#d49b55",msg:"Pepper: Let's get cupcakes!"},
+ {name:"Mochi",x:110,y:176,coat:"#c6a886",shirt:"#b6769d",msg:"Mochi: We can build things with wood!"}
 ];
 
-var critters=[
- {id:"apple",x:54,y:198,icon:"🍎",drop:"apple"},
- {id:"toast",x:90,y:202,icon:"🍞",drop:"toast"},
- {id:"carrot",x:54,y:226,icon:"🥕",drop:"carrot"}
-];
+var rooms={
+ home:{name:"MY HOUSE",floor:"#d9c39b",wall:"#b98263",objects:[
+   {id:"bed",x:95,y:88,w:78,h:40,col:"#d999aa",icon:"🛏️",msg:"Bounce bounce! Your bed is super cozy!"},
+   {id:"closet",x:380,y:82,w:55,h:48,col:"#9a6b4d",icon:"👗",msg:"You look through your clothes!"},
+   {id:"toybox",x:335,y:185,w:58,h:40,col:"#d6a94d",icon:"🧸",msg:"You found your favorite toy!"},
+   {id:"exit",x:240,y:238,w:72,h:28,col:"#805c43",icon:"🚪",exit:true,msg:"Back outside!"}
+ ]},
+ school:{name:"SCHOOL",floor:"#e6d2a7",wall:"#b96f62",objects:[
+   {id:"desk",x:115,y:90,w:74,h:42,col:"#b7895d",icon:"📚",msg:"Your school desk!"},
+   {id:"draw",x:250,y:92,w:72,h:42,col:"#c88cc9",icon:"🎨",action:"draw",msg:"Drawing time!"},
+   {id:"books",x:385,y:90,w:62,h:48,col:"#7d91bb",icon:"📖",msg:"You read a silly cat story!"},
+   {id:"snack",x:115,y:182,w:66,h:38,col:"#d89b68",icon:"🍎",msg:"Snack time! Yum!"},
+   {id:"playdoor",x:365,y:184,w:82,h:38,col:"#74a96c",icon:"🛝",goto:"park",msg:"Let's go to the playground!"},
+   {id:"exit",x:240,y:238,w:72,h:28,col:"#805c43",icon:"🚪",exit:true,msg:"School is done for now!"}
+ ]},
+ market:{name:"MARKET",floor:"#e9c9b0",wall:"#b96e80",objects:[
+   {id:"cupcakes",x:110,y:98,w:76,h:44,col:"#d8798e",icon:"🧁",msg:"You got a pretend cupcake! 🧁"},
+   {id:"fruit",x:240,y:100,w:72,h:42,col:"#d6a65c",icon:"🍎",msg:"Fresh fruit!"},
+   {id:"counter",x:365,y:110,w:72,h:48,col:"#9a6b4d",icon:"🐱",msg:"Shopkeeper: Welcome!"},
+   {id:"exit",x:240,y:238,w:72,h:28,col:"#805c43",icon:"🚪",exit:true,msg:"Back to town!"}
+ ]},
+ park:{name:"SUNNY PAW PARK",floor:"#91c97c",wall:"#4f8055",objects:[
+   {id:"slide",x:95,y:95,w:58,h:72,col:"#e6c74f",icon:"🛝",msg:"WHEEEE! You zoom down the slide!"},
+   {id:"swings",x:210,y:88,w:72,h:58,col:"#78a7ce",icon:"🎠",msg:"Higher! Higher! Wheee!"},
+   {id:"sandbox",x:340,y:100,w:82,h:56,col:"#e7cb82",icon:"🏖️",msg:"You build a cat-ear sand castle!"},
+   {id:"seesaw",x:125,y:185,w:82,h:34,col:"#d98568",icon:"↕️",msg:"Up! Down! Up! Down!"},
+   {id:"climber",x:300,y:185,w:78,h:44,col:"#8d74b5",icon:"🧗",msg:"You climb all the way to the top!"},
+   {id:"exit",x:420,y:232,w:62,h:28,col:"#805c43",icon:"🚪",exit:true,msg:"Back to town!"}
+ ]},
+ forest:{name:"FOREST",floor:"#6f9d62",wall:"#396246",objects:[
+   {id:"wood",x:105,y:100,w:62,h:40,col:"#9a6b43",icon:"🪵",wood:true,msg:"You collected wood!"},
+   {id:"apple",x:235,y:90,w:48,h:44,col:"#668b50",icon:"🍎",foodCritter:"apple",msg:"A wiggly apple-creature!"},
+   {id:"toast",x:335,y:145,w:48,h:44,col:"#c49c65",icon:"🍞",foodCritter:"toast",msg:"A bouncy toast-creature!"},
+   {id:"carrot",x:185,y:188,w:48,h:44,col:"#d58d52",icon:"🥕",foodCritter:"carrot",msg:"A hopping carrot-creature!"},
+   {id:"exit",x:420,y:232,w:62,h:28,col:"#805c43",icon:"🚪",exit:true,msg:"Back to town!"}
+ ]},
+ lake:{name:"LAKE",floor:"#90bd79",wall:"#5c8fb0",objects:[
+   {id:"dock",x:120,y:120,w:95,h:42,col:"#9b714b",icon:"🎣",msg:"You sit on the dock and watch the water."},
+   {id:"frog",x:275,y:95,w:48,h:38,col:"#6da55c",icon:"🐸",msg:"Ribbit! The frog waves at you!"},
+   {id:"boat",x:355,y:165,w:72,h:40,col:"#bd8255",icon:"🛶",msg:"You rock gently in the little boat!"},
+   {id:"exit",x:420,y:232,w:62,h:28,col:"#805c43",icon:"🚪",exit:true,msg:"Back to town!"}
+ ]}
+};
 
 function fit(){
- var vv=window.visualViewport, vw=Math.max(1,vv?vv.width:innerWidth), vh=Math.max(1,vv?vv.height:innerHeight);
- var aspect=vw/vh, base=BASE_W/BASE_H;
+ var vv=window.visualViewport,vw=Math.max(1,vv?vv.width:innerWidth),vh=Math.max(1,vv?vv.height:innerHeight);
+ var aspect=vw/vh,base=BASE_W/BASE_H;
  if(aspect>=base){H=BASE_H;W=Math.round(H*aspect)}else{W=BASE_W;H=Math.round(W/aspect)}
  offX=Math.floor((W-BASE_W)/2);offY=Math.floor((H-BASE_H)/2);
- c.width=W;c.height=H;g.imageSmoothingEnabled=false;
- c.style.width=vw+"px";c.style.height=vh+"px";
+ c.width=W;c.height=H;g.imageSmoothingEnabled=false;c.style.width=vw+"px";c.style.height=vh+"px";
 }
 fit();addEventListener("resize",fit);addEventListener("orientationchange",function(){setTimeout(fit,100)});
 
@@ -91,51 +119,82 @@ function tree(x,y){rect(x-4,y-16,8,18,"#795a3c");g.fillStyle="#4f8055";g.beginPa
 function npc(o){rect(o.x-7,o.y-12,14,13,o.coat);rect(o.x-6,o.y-16,5,6,o.coat);rect(o.x+1,o.y-16,5,6,o.coat);rect(o.x-4,o.y-8,2,2,"#222");rect(o.x+2,o.y-8,2,2,"#222");rect(o.x-8,o.y,16,10,o.shirt);text(o.name,o.x,o.y-20,6,"#3b2d28","center")}
 function player(){rect(p.x-8,p.y-11,16,16,"#f0e2cb");rect(p.x-7,p.y-16,5,6,"#e28a55");rect(p.x+2,p.y-16,5,6,"#888");rect(p.x-5,p.y-8,2,2,"#222");rect(p.x+3,p.y-8,2,2,"#222");rect(p.x-9,p.y+3,18,10,"#7396c8")}
 
-function world(){
- rect(0,0,W,H,"#8fbd79");
- g.save();g.translate(offX,offY);
- rect(213,0,54,270,"#dfc18c");rect(0,145,480,46,"#dfc18c");
+function drawTown(){
+ rect(0,0,BASE_W,BASE_H,"#8fbd79");rect(213,0,54,270,"#dfc18c");rect(0,145,480,46,"#dfc18c");
  [20,68,116,164,308,356,404,452].forEach(function(x){tree(x,32);tree(x,250)});
- locations.forEach(function(o){rect(o.x-o.w/2,o.y-o.h/2,o.w,o.h,o.col);rect(o.x-o.w/2+7,o.y+o.h/2-11,o.w-14,11,"#7b553d");text(o.label,o.x,o.y-3,8,"#fff","center");emo(o.icon,o.x,o.y+14,13)});
+ town.forEach(function(o){rect(o.x-o.w/2,o.y-o.h/2,o.w,o.h,o.col);rect(o.x-o.w/2+7,o.y+o.h/2-11,o.w-14,11,"#7b553d");text(o.label,o.x,o.y-3,8,"#fff","center");emo(o.icon,o.x,o.y+14,13)});
  people.forEach(npc);
- critters.forEach(function(o){if(!removed[o.id])emo(o.icon,o.x,o.y,15)});
+}
+function drawRoom(){
+ var r=rooms[scene];rect(0,0,BASE_W,BASE_H,r.floor);rect(0,0,BASE_W,34,r.wall);text(r.name,240,23,13,"#fff","center");
+ for(var i=0;i<r.objects.length;i++){var o=r.objects[i];if(o.foodCritter&&removed[o.foodCritter])continue;rect(o.x-o.w/2,o.y-o.h/2,o.w,o.h,o.col);emo(o.icon,o.x,o.y+7,18);if(o.id!=="exit")text(o.id.toUpperCase(),o.x,o.y-o.h/2-4,6,"#3b2d28","center")}
+}
+function world(){
+ rect(0,0,W,H,"#26382d");g.save();g.translate(offX,offY);
+ if(scene==="town")drawTown();else drawRoom();
  for(var i=0;i<built;i++)emo("🏠",214+i*18,132,16);
  player();g.restore();
 }
 function ui(){
- rect(5,5,W-10,27,"#fff1cddd");text("🐱 WHISKERWOOD",12,22,11);text("⭐ "+coins,W-18,22,10,"#3b2d28","right");
- rect(7,36,180,38,"#fff1cddd");text("TODAY:",14,50,8);text((school?"✓ ":"□ ")+"Go to school",14,65,9,school?"#39724b":"#3b2d28");
+ rect(5,5,W-10,27,"#fff1cddd");text("🐱 WHISKERWOOD",12,22,11);text(scene==="town"?"TOWN":rooms[scene].name,W/2,22,8,"#3b2d28","center");text("⭐ "+coins,W-18,22,10,"#3b2d28","right");
  rect(8,H-32,W-16,25,"#fff1cddd");text(msg,15,H-15,8);
 }
 function near(x,y,r){return Math.hypot(p.x-x,p.y-y)<r}
-function interact(){
- var best=null,dist=999;
- locations.forEach(function(o){var d=Math.hypot(p.x-o.x,p.y-o.y);if(d<58&&d<dist){best={type:"loc",o:o};dist=d}});
- people.forEach(function(o){var d=Math.hypot(p.x-o.x,p.y-o.y);if(d<40&&d<dist){best={type:"person",o:o};dist=d}});
- critters.forEach(function(o){if(!removed[o.id]){var d=Math.hypot(p.x-o.x,p.y-o.y);if(d<34&&d<dist){best={type:"critter",o:o};dist=d}}});
- if(!best){msg="Nothing to interact with here.";return}
- if(best.type==="person"){msg=best.o.msg;return}
- var o=best.o;msg=o.msg||"Hello!";
- if(o.id==="school"){school=true;coins+=school?0:5}
- if(o.id==="draw"){openDraw()}
- if(o.id==="wood"){wood++;msg="You picked up wood! 🪵 ("+wood+")"}
- if(o.id==="build"){openBag()}
+function enter(where){scene=where;p.x=240;p.y=205;msg="You went into "+rooms[where].name+"!"}
+function leave(){scene="town";p.x=240;p.y=170;msg="Back in Whiskerwood!"}
+function hitTownAt(x,y){for(var i=town.length-1;i>=0;i--){var o=town[i];if(x>=o.x-o.w/2&&x<=o.x+o.w/2&&y>=o.y-o.h/2&&y<=o.y+o.h/2)return o}return null}
+function hitRoomAt(x,y){var arr=rooms[scene].objects;for(var i=arr.length-1;i>=0;i--){var o=arr[i];if(o.foodCritter&&removed[o.foodCritter])continue;if(x>=o.x-o.w/2&&x<=o.x+o.w/2&&y>=o.y-o.h/2&&y<=o.y+o.h/2)return o}return null}
+function useObject(o){
+ if(!o)return;
+ if(o.exit){leave();return}
+ if(o.goto){scene=o.goto;p.x=240;p.y=205;msg=o.msg;return}
+ if(o.action==="draw"){msg=o.msg;openDraw();return}
+ if(o.wood){wood++;msg="You collected wood! 🪵 ("+wood+")";return}
+ if(o.foodCritter){msg=o.msg+" Use your Cat Sword!";return}
+ msg=o.msg||"You use it!";
 }
-function update(){var sp=1.7;if(key.left)p.x-=sp;if(key.right)p.x+=sp;if(key.up)p.y-=sp;if(key.down)p.y+=sp;p.x=Math.max(10,Math.min(470,p.x));p.y=Math.max(18,Math.min(255,p.y))}
+function interact(){
+ if(scene==="town"){
+   var best=null,dist=999;
+   town.forEach(function(o){var d=Math.hypot(p.x-o.x,p.y-o.y);if(d<62&&d<dist){best=o;dist=d}});
+   if(best){enter(best.enter);if(best.id==="school"){if(!school){coins+=5;school=true}}return}
+   people.forEach(function(o){var d=Math.hypot(p.x-o.x,p.y-o.y);if(d<40&&d<dist){best=o;dist=d}});
+   if(best&&best.msg){msg=best.msg;return}
+ }else{
+   var arr=rooms[scene].objects,b=null,bd=999;
+   arr.forEach(function(o){if(o.foodCritter&&removed[o.foodCritter])return;var d=Math.hypot(p.x-o.x,p.y-o.y);if(d<58&&d<bd){b=o;bd=d}});
+   if(b){useObject(b);return}
+ }
+ msg="Walk closer or tap something!";
+}
+function update(){var sp=1.7;if(key.left)p.x-=sp;if(key.right)p.x+=sp;if(key.up)p.y-=sp;if(key.down)p.y+=sp;p.x=Math.max(10,Math.min(470,p.x));p.y=Math.max(38,Math.min(252,p.y))}
 function loop(){update();world();ui();requestAnimationFrame(loop)}requestAnimationFrame(loop);
 
-function bind(id,k){var b=document.getElementById(id);["pointerdown"].forEach(function(ev){b.addEventListener(ev,function(e){e.preventDefault();key[k]=true;b.setPointerCapture&&b.setPointerCapture(e.pointerId)})});["pointerup","pointercancel","lostpointercapture"].forEach(function(ev){b.addEventListener(ev,function(){key[k]=false})})}
+function bind(id,k){var b=document.getElementById(id);b.addEventListener("pointerdown",function(e){e.preventDefault();key[k]=true;b.setPointerCapture&&b.setPointerCapture(e.pointerId)});["pointerup","pointercancel","lostpointercapture"].forEach(function(ev){b.addEventListener(ev,function(){key[k]=false})})}
 bind("left","left");bind("right","right");bind("up","up");bind("down","down");
-document.getElementById("act").addEventListener("click",interact);
+document.getElementById("act").onclick=interact;
 addEventListener("keydown",function(e){if(e.key==="ArrowLeft"||e.key==="a")key.left=true;if(e.key==="ArrowRight"||e.key==="d")key.right=true;if(e.key==="ArrowUp"||e.key==="w")key.up=true;if(e.key==="ArrowDown"||e.key==="s")key.down=true;if(e.key==="e"||e.key==="Enter")interact()});
 addEventListener("keyup",function(e){if(e.key==="ArrowLeft"||e.key==="a")key.left=false;if(e.key==="ArrowRight"||e.key==="d")key.right=false;if(e.key==="ArrowUp"||e.key==="w")key.up=false;if(e.key==="ArrowDown"||e.key==="s")key.down=false});
+
+c.addEventListener("pointerup",function(e){
+ var r=c.getBoundingClientRect();
+ var sx=(e.clientX-r.left)*W/r.width-offX,sy=(e.clientY-r.top)*H/r.height-offY;
+ if(sx<0||sx>BASE_W||sy<0||sy>BASE_H)return;
+ if(scene==="town"){var o=hitTownAt(sx,sy);if(o){enter(o.enter);if(o.id==="school"&&!school){school=true;coins+=5}}}
+ else{var q=hitRoomAt(sx,sy);if(q)useObject(q)}
+});
 
 var bag=document.getElementById("bag"),items=document.getElementById("items");
 function renderBag(){items.innerHTML="";[["🪵 Wood",wood],["⚔️ Cat Sword",1],["🍎 Apple",food.apple],["🍞 Toast",food.toast],["🥕 Carrot",food.carrot]].forEach(function(it){var r=document.createElement("div");r.className="row";r.textContent=it[0]+" × "+it[1];items.appendChild(r)})}
 function openBag(){renderBag();bag.classList.add("open")}function closeBag(){bag.classList.remove("open")}
 document.getElementById("bagBtn").onclick=openBag;document.getElementById("bagClose").onclick=closeBag;
 document.getElementById("buildBtn").onclick=function(){if(wood<3){msg="You need 3 wood to build!";closeBag();return}wood-=3;built++;msg="You built a tiny cat house! 🏠";closeBag()};
-document.getElementById("swordBtn").onclick=function(){var hit=null;critters.forEach(function(o){if(!removed[o.id]&&near(o.x,o.y,36))hit=o});if(!hit){msg="Swish! Cat sword sparkle! ✨";return}removed[hit.id]=true;food[hit.drop]++;msg="POOF! The "+hit.drop+" critter turned into food! ✨"};
+document.getElementById("swordBtn").onclick=function(){
+ if(scene!=="forest"){msg="Your Cat Sword goes SWISH! ✨";return}
+ var arr=rooms.forest.objects,hit=null;arr.forEach(function(o){if(o.foodCritter&&!removed[o.foodCritter]&&near(o.x,o.y,42))hit=o});
+ if(!hit){msg="No food-creature close enough!";return}
+ removed[hit.foodCritter]=true;food[hit.foodCritter]++;msg="POOF! It turned into "+hit.foodCritter+" food! ✨";
+};
 
 var draw=document.getElementById("draw"),dc=document.getElementById("drawing"),dg=dc.getContext("2d"),drawing=false,last=null;
 function openDraw(){draw.classList.add("open")}function closeDraw(){draw.classList.remove("open")}
