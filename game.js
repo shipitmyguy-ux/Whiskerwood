@@ -101,6 +101,14 @@ function drawLocation(s){
   txt(s.label,s.x,s.y-4,9,"#fff","center");
   if(s.emoji)emoji(s.emoji,s.x,s.y+15,14);
 }
+function npcCat(o){
+  const x=o.x,y=o.y,coat=o.coat||"#d8b07b",shirt=o.shirt||"#7396c8";
+  rect(x-7,y-12,14,13,coat);
+  rect(x-6,y-16,5,6,coat);rect(x+1,y-16,5,6,coat);
+  rect(x-4,y-8,2,2,"#333");rect(x+2,y-8,2,2,"#333");
+  rect(x-8,y,16,10,shirt);rect(x-5,y+10,4,4,coat);rect(x+2,y+10,4,4,coat);
+  txt(o.name,x,y-20,6,"#3b2d28","center");
+}
 function cat(){
   const x=state.p.x,y=state.p.y;
   rect(x-8,y-11,16,16,"#f0e2cb");
@@ -116,6 +124,7 @@ function cat(){
 function allInteractables(){
   return [
     ...CFG.locations.map(o=>({...o,kind:"location"})),
+    ...(CFG.characters||[]).map(o=>({...o,kind:"character"})),
     ...CFG.animals.filter(o=>!state.removed.has(o.id)).map(o=>({...o,kind:"animal"}))
   ];
 }
@@ -178,6 +187,7 @@ function drawWorld(){
     if(fn)fn(d.x,d.y);
   }
   for(const s of CFG.locations)drawLocation(s);
+  for(const o of (CFG.characters||[]))npcCat(o);
   for(const a of CFG.animals)if(!state.removed.has(a.id))emoji(a.emoji,a.x,a.y,15);
   for(let i=0;i<state.built;i++){rect(205+i*18,124,14,18,"#b47a4b");emoji("🏠",212+i*18,138,15)}
   cat();
