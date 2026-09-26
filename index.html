@@ -233,16 +233,47 @@ c.addEventListener("pointerdown",function(e){
 });
 
 var bag=document.getElementById("bag"),items=document.getElementById("items");
-function renderBag(){items.innerHTML="";[["🪵 Wood",wood],["⚔️ Cat Sword",1],["🍎 Apple",food.apple],["🍞 Toast",food.toast],["🥕 Carrot",food.carrot]].forEach(function(it){var r=document.createElement("div");r.className="row";r.textContent=it[0]+" × "+it[1];items.appendChild(r)})}
+function renderBag(){
+ items.innerHTML="";
+ var defs=[
+   {key:"wood",label:"🪵 Wood",count:wood,action:"build"},
+   {key:"sword",label:"⚔️ Cat Sword",count:1,action:"sword"},
+   {key:"apple",label:"🍎 Apple",count:food.apple,action:"eat"},
+   {key:"toast",label:"🍞 Toast",count:food.toast,action:"eat"},
+   {key:"carrot",label:"🥕 Carrot",count:food.carrot,action:"eat"}
+ ];
+ defs.forEach(function(it){
+   var r=document.createElement("div");r.className="row";
+   var label=document.createElement("span");label.textContent=it.label+" × "+it.count;
+   var b=document.createElement("button");b.type="button";
+   b.textContent=it.action==="sword"?"USE":it.action==="build"?"BUILD":"EAT";
+   if(it.count<=0&&it.action!=="sword")b.disabled=true;
+   b.addEventListener("click",function(){useBagItem(it.key)});
+   r.appendChild(label);r.appendChild(b);items.appendChild(r);
+ });
+}
+function useBagItem(key){
+ if(key==="sword"){closeBag();useSword();return}
+ if(key==="wood"){
+   if(wood<3){msg="You need 3 wood to build!";closeBag();return}
+   wood-=3;built++;msg="You built a tiny cat house! 🏠";renderBag();return;
+ }
+ if(key==="apple"||key==="toast"||key==="carrot"){
+   if(food[key]<=0)return;
+   food[key]--;coins++;msg="Yum! You ate the "+key+"! 😺";renderBag();return;
+ }
+}
 function openBag(){renderBag();bag.classList.add("open")}function closeBag(){bag.classList.remove("open")}
 document.getElementById("bagBtn").onclick=openBag;document.getElementById("bagClose").onclick=closeBag;
-document.getElementById("buildBtn").onclick=function(){if(wood<3){msg="You need 3 wood to build!";closeBag();return}wood-=3;built++;msg="You built a tiny cat house! 🏠";closeBag()};
-document.getElementById("swordBtn").onclick=function(){
+document.getElementById("buildBtn").onclick=function(){useBagItem("wood")};
+function useSword(){
  if(scene!=="forest"){msg="Your Cat Sword goes SWISH! ✨";return}
- var arr=rooms.forest.objects,hit=null;arr.forEach(function(o){if(o.foodCritter&&!removed[o.foodCritter]&&near(o.x,o.y,42))hit=o});
+ var arr=rooms.forest.objects,hit=null;arr.forEach(function(o){if(o.foodCritter&&!removed[o.foodCritter]&&near(o.x,o.y,60))hit=o});
  if(!hit){msg="No food-creature close enough!";return}
  removed[hit.foodCritter]=true;food[hit.foodCritter]++;msg="POOF! It turned into "+hit.foodCritter+" food! ✨";
-};
+ renderBag();
+}
+document.getElementById("swordBtn").onclick=useSword;
 
 var closetPanel=document.getElementById("closetPanel");
 function openCloset(){closetPanel.classList.add("open")}function closeCloset(){closetPanel.classList.remove("open")}
