@@ -145,8 +145,27 @@ function ui(){
 function near(x,y,r){return Math.hypot(p.x-x,p.y-y)<r}
 function enter(where){scene=where;p.x=240;p.y=205;msg="You went into "+rooms[where].name+"!"}
 function leave(){scene="town";p.x=240;p.y=170;msg="Back in Whiskerwood!"}
-function hitTownAt(x,y){for(var i=town.length-1;i>=0;i--){var o=town[i];if(x>=o.x-o.w/2-10&&x<=o.x+o.w/2+10&&y>=o.y-o.h/2-10&&y<=o.y+o.h/2+10)return o}return null}
-function hitRoomAt(x,y){var arr=rooms[scene].objects;for(var i=arr.length-1;i>=0;i--){var o=arr[i];if(o.foodCritter&&removed[o.foodCritter])continue;if(o.tree&&chopped[o.id])continue;if(x>=o.x-o.w/2&&x<=o.x+o.w/2&&y>=o.y-o.h/2&&y<=o.y+o.h/2)return o}return null}
+function hitTownAt(x,y){
+ var best=null,bestD=999;
+ for(var i=town.length-1;i>=0;i--){
+   var o=town[i];
+   if(x>=o.x-o.w/2-20&&x<=o.x+o.w/2+20&&y>=o.y-o.h/2-20&&y<=o.y+o.h/2+20)return o;
+   var d=Math.hypot(x-o.x,y-o.y);if(d<bestD){best=o;bestD=d}
+ }
+ return bestD<80?best:null
+}
+function hitRoomAt(x,y){
+ var arr=rooms[scene].objects,best=null,bestD=999;
+ for(var i=arr.length-1;i>=0;i--){
+   var o=arr[i];
+   if(o.foodCritter&&removed[o.foodCritter])continue;
+   if(o.tree&&chopped[o.id])continue;
+   if(x>=o.x-o.w/2-24&&x<=o.x+o.w/2+24&&y>=o.y-o.h/2-24&&y<=o.y+o.h/2+24)return o;
+   var d=Math.hypot(x-o.x,y-o.y);
+   if(d<bestD){best=o;bestD=d}
+ }
+ return bestD<72?best:null
+}
 function useObject(o){
  if(!o)return;
  if(o.exit){leave();return}
@@ -212,25 +231,30 @@ bind("left","left");bind("right","right");bind("up","up");bind("down","down");
 addEventListener("keydown",function(e){if(e.key==="ArrowLeft"||e.key==="a")key.left=true;if(e.key==="ArrowRight"||e.key==="d")key.right=true;if(e.key==="ArrowUp"||e.key==="w")key.up=true;if(e.key==="ArrowDown"||e.key==="s")key.down=true;if(e.key==="e"||e.key==="Enter")interact()});
 addEventListener("keyup",function(e){if(e.key==="ArrowLeft"||e.key==="a")key.left=false;if(e.key==="ArrowRight"||e.key==="d")key.right=false;if(e.key==="ArrowUp"||e.key==="w")key.up=false;if(e.key==="ArrowDown"||e.key==="s")key.down=false});
 
-c.addEventListener("pointerdown",function(e){
- e.preventDefault();
+var lastTapAt=0;
+function tapGame(clientX,clientY){
+ var now=Date.now();if(now-lastTapAt<120)return;lastTapAt=now;
  var r=c.getBoundingClientRect();
- var sx=(e.clientX-r.left)*W/r.width-offX,sy=(e.clientY-r.top)*H/r.height-offY;
- if(sx<0||sx>BASE_W||sy<0||sy>BASE_H)return;
+ if(!r.width||!r.height)return;
+ var canvasX=(clientX-r.left)*(c.width/r.width);
+ var canvasY=(clientY-r.top)*(c.height/r.height);
+ var sx=canvasX-offX,sy=canvasY-offY;
 
  if(scene==="town"){
-   var o=hitTownAt(sx,sy);
-   if(o){enter(o.enter);if(o.id==="school"&&!school){school=true;coins+=5}return}
    for(var i=people.length-1;i>=0;i--){
      var n=people[i];
-     if(Math.hypot(sx-n.x,sy-n.y)<28){msg=n.msg;return}
+     if(Math.hypot(sx-n.x,sy-n.y)<40){msg=n.msg;return}
    }
+   var o=hitTownAt(sx,sy);
+   if(o){enter(o.enter);if(o.id==="school"&&!school){school=true;coins+=5}return}
  }else{
    var q=hitRoomAt(sx,sy);
    if(q){useObject(q);return}
  }
- msg="Tap an object or walk closer and press ACT!";
-});
+ msg="Try tapping a little closer to the thing! 🐾";
+}
+c.addEventListener("pointerdown",function(e){e.preventDefault();tapGame(e.clientX,e.clientY)});
+c.addEventListener("click",function(e){tapGame(e.clientX,e.clientY)});
 
 var bag=document.getElementById("bag"),items=document.getElementById("items");
 function renderBag(){
