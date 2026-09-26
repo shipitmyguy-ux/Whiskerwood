@@ -3,7 +3,7 @@
 // Add/move/change buildings, animals, messages, rewards, quests, colors, and speed here.
 window.WHISKERWOOD={
   schema:1,
-  build:"rapid-1",
+  build:"rapid-2",
   viewport:{w:480,h:270},
   player:{
     start:{x:240,y:170},
@@ -63,7 +63,10 @@ window.WHISKERWOOD={
   animals:[
     {id:"bird",x:310,y:151,emoji:"🐦",interaction:{message:"Chirp chirp! The little bird likes you."}},
     {id:"frog",x:426,y:218,emoji:"🐸",interaction:{message:"Ribbit! The frog gives you a tiny wave."}},
-    {id:"squirrel",x:120,y:218,emoji:"🐿️",interaction:{message:"The squirrel zooms around your paws!"}}
+    {id:"squirrel",x:120,y:218,emoji:"🐿️",interaction:{message:"The squirrel zooms around your paws!"}},
+    {id:"apple-critter",x:56,y:198,emoji:"🍎",foodCreature:true,drop:"apple",interaction:{message:"A wiggly apple-creature bounces around!"}},
+    {id:"toast-critter",x:92,y:202,emoji:"🍞",foodCreature:true,drop:"toast",interaction:{message:"The toast-creature goes boing!"}},
+    {id:"carrot-critter",x:52,y:224,emoji:"🥕",foodCreature:true,drop:"carrot",interaction:{message:"The carrot-creature hops away!"}}
   ],
 
   // Simple scenery. Supported types: tree, flower, rock, bench.
