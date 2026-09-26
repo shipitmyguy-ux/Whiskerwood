@@ -167,12 +167,39 @@ function interact(){
  }
  msg="Walk closer or tap something!";
 }
-function update(){var sp=1.7;if(key.left)p.x-=sp;if(key.right)p.x+=sp;if(key.up)p.y-=sp;if(key.down)p.y+=sp;p.x=Math.max(10,Math.min(470,p.x));p.y=Math.max(38,Math.min(252,p.y))}
+function update(){
+ var sp=1.7;
+ if(key.left)p.x-=sp;if(key.right)p.x+=sp;if(key.up)p.y-=sp;if(key.down)p.y+=sp;
+ p.x=Math.max(10,Math.min(470,p.x));p.y=Math.max(38,Math.min(252,p.y));
+
+ // Auto-enter doors/places when the player walks right up to them.
+ if(scene==="town"){
+   for(var i=0;i<town.length;i++){
+     var o=town[i];
+     var doorY=o.y+o.h/2;
+     if(Math.abs(p.x-o.x)<Math.max(18,o.w*.32)&&Math.abs(p.y-doorY)<18){
+       enter(o.enter);
+       if(o.id==="school"&&!school){school=true;coins+=5}
+       break;
+     }
+   }
+ }else{
+   var r=rooms[scene];
+   for(var j=0;j<r.objects.length;j++){
+     var q=r.objects[j];
+     if(q.exit&&Math.abs(p.x-q.x)<34&&Math.abs(p.y-q.y)<20){leave();break}
+     if(q.goto&&Math.abs(p.x-q.x)<36&&Math.abs(p.y-q.y)<24){scene=q.goto;p.x=240;p.y=205;msg=q.msg;break}
+   }
+ }
+}
 function loop(){update();world();ui();requestAnimationFrame(loop)}requestAnimationFrame(loop);
 
 function bind(id,k){var b=document.getElementById(id);b.addEventListener("pointerdown",function(e){e.preventDefault();key[k]=true;b.setPointerCapture&&b.setPointerCapture(e.pointerId)});["pointerup","pointercancel","lostpointercapture"].forEach(function(ev){b.addEventListener(ev,function(){key[k]=false})})}
 bind("left","left");bind("right","right");bind("up","up");bind("down","down");
-document.getElementById("act").onclick=interact;
+(function(){
+ var act=document.getElementById("act");
+ act.addEventListener("pointerdown",function(e){e.preventDefault();interact();act.setPointerCapture&&act.setPointerCapture(e.pointerId)});
+})();
 addEventListener("keydown",function(e){if(e.key==="ArrowLeft"||e.key==="a")key.left=true;if(e.key==="ArrowRight"||e.key==="d")key.right=true;if(e.key==="ArrowUp"||e.key==="w")key.up=true;if(e.key==="ArrowDown"||e.key==="s")key.down=true;if(e.key==="e"||e.key==="Enter")interact()});
 addEventListener("keyup",function(e){if(e.key==="ArrowLeft"||e.key==="a")key.left=false;if(e.key==="ArrowRight"||e.key==="d")key.right=false;if(e.key==="ArrowUp"||e.key==="w")key.up=false;if(e.key==="ArrowDown"||e.key==="s")key.down=false});
 
