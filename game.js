@@ -24,7 +24,7 @@ function fitGame(){
   const vv=window.visualViewport;
   const vw=Math.max(1,vv?vv.width:innerWidth);
   const vh=Math.max(1,vv?vv.height:innerHeight);
-  const scale=Math.min((vw-4)/W,(vh-4)/H);
+  const scale=Math.max(vw/W,vh/H);
   c.style.width=Math.floor(W*scale)+"px";
   c.style.height=Math.floor(H*scale)+"px";
 }
