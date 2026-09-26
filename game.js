@@ -42,8 +42,11 @@ function fitGame(){
   c.width=W;
   c.height=H;
   g.imageSmoothingEnabled=false;
-  c.style.width=Math.floor(vw)+"px";
-  c.style.height=Math.floor(vh)+"px";
+  // Canvas bitmap and CSS box use the same aspect ratio. Never independently
+  // force width/height from CSS, which would distort the world.
+  const cssScale=Math.min(vw/W,vh/H);
+  c.style.width=Math.ceil(W*cssScale)+"px";
+  c.style.height=Math.ceil(H*cssScale)+"px";
 }
 addEventListener("resize",fitGame);
 addEventListener("orientationchange",()=>setTimeout(fitGame,120));
