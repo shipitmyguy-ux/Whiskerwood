@@ -159,8 +159,8 @@ function update(){
   const sp=CFG.player.speed;
   state.p.x+=(key.ArrowRight||key.d?sp:0)-(key.ArrowLeft||key.a?sp:0);
   state.p.y+=(key.ArrowDown||key.s?sp:0)-(key.ArrowUp||key.w?sp:0);
-  state.p.x=Math.max(12-worldOffsetX,Math.min(WORLD_W-12+worldOffsetX,state.p.x));
-  state.p.y=Math.max(12-worldOffsetY,Math.min(WORLD_H-12+worldOffsetY,state.p.y));
+  state.p.x=Math.max(12,Math.min(WORLD_W-12,state.p.x));
+  state.p.y=Math.max(12,Math.min(WORLD_H-12,state.p.y));
   const a=!!(key.e||key.Enter||key[" "]);
   if(a&&!actWas)interact();
   actWas=a;
@@ -220,14 +220,14 @@ function openBag(){renderBag();bagPanel.classList.add("open")}
 function closeBag(){bagPanel.classList.remove("open")}
 function openDrawing(){drawPanel.classList.add("open")}
 function closeDrawing(){drawPanel.classList.remove("open")}
-document.getElementById("bagBtn").addEventListener("click",openBag);
-document.getElementById("bagClose").addEventListener("click",closeBag);
-document.getElementById("drawClose").addEventListener("click",closeDrawing);
-document.getElementById("buildBtn").addEventListener("click",()=>{
+document.getElementById("bagBtn")?.addEventListener("click",openBag);
+document.getElementById("bagClose")?.addEventListener("click",closeBag);
+document.getElementById("drawClose")?.addEventListener("click",closeDrawing);
+document.getElementById("buildBtn")?.addEventListener("click",()=>{
   if((state.inventory.wood||0)<3){state.message="You need 3 wood to build a tiny cat house!";closeBag();return}
   state.inventory.wood-=3;state.built++;state.message="You built a tiny cat house! 🏠✨";renderBag();closeBag();
 });
-document.getElementById("swordBtn").addEventListener("click",()=>{
+document.getElementById("swordBtn")?.addEventListener("click",()=>{
   const target=nearestInteractable();
   if(!target||!target.foodCreature){state.message="Swish! Your cat sword sparkles. ✨";return}
   state.removed.add(target.id);
@@ -248,7 +248,7 @@ function drawPoint(e){
 dc.addEventListener("pointerdown",e=>{drawing=true;last=null;dc.setPointerCapture?.(e.pointerId);drawPoint(e)});
 dc.addEventListener("pointermove",e=>{if(drawing)drawPoint(e)});
 for(const ev of ["pointerup","pointercancel","lostpointercapture"])dc.addEventListener(ev,()=>{drawing=false;last=null});
-document.getElementById("clearDrawing").addEventListener("click",()=>{dg.fillStyle="#fff";dg.fillRect(0,0,dc.width,dc.height)});
+document.getElementById("clearDrawing")?.addEventListener("click",()=>{dg.fillStyle="#fff";dg.fillRect(0,0,dc.width,dc.height)});
 
 renderBag();
 function loop(){update();draw();requestAnimationFrame(loop)}
