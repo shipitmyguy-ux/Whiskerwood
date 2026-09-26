@@ -17,7 +17,9 @@ const state={
   coins:0,
   completed:new Set(),
   rewarded:new Set(),
-  inventory:Object.create(null)
+  inventory:{wood:0,"cat sword":1},
+  removed:new Set(),
+  built:0
 };
 
 function fitGame(){
@@ -114,7 +116,7 @@ function cat(){
 function allInteractables(){
   return [
     ...CFG.locations.map(o=>({...o,kind:"location"})),
-    ...CFG.animals.map(o=>({...o,kind:"animal"}))
+    ...CFG.animals.filter(o=>!state.removed.has(o.id)).map(o=>({...o,kind:"animal"}))
   ];
 }
 function nearestInteractable(){
@@ -136,7 +138,10 @@ function applyInteraction(o){
   }
   if(a.item){
     state.inventory[a.item]=(state.inventory[a.item]||0)+1;
+    renderBag();
   }
+  if(a.action==="draw")openDrawing();
+  if(a.action==="build")openBag();
   if(a.teleport){
     state.p.x=a.teleport.x;
     state.p.y=a.teleport.y;
@@ -173,7 +178,8 @@ function drawWorld(){
     if(fn)fn(d.x,d.y);
   }
   for(const s of CFG.locations)drawLocation(s);
-  for(const a of CFG.animals)emoji(a.emoji,a.x,a.y,15);
+  for(const a of CFG.animals)if(!state.removed.has(a.id))emoji(a.emoji,a.x,a.y,15);
+  for(let i=0;i<state.built;i++){rect(205+i*18,124,14,18,"#b47a4b");emoji("🏠",212+i*18,138,15)}
   cat();
   g.restore();
 }
@@ -195,6 +201,56 @@ function drawUi(){
   txt(CFG.build,W-12,H-10,6,"#6b6259","right");
 }
 function draw(){drawWorld();drawUi()}
+
+const bagPanel=document.getElementById("bagPanel");
+const bagItems=document.getElementById("bagItems");
+const drawPanel=document.getElementById("drawPanel");
+function renderBag(){
+  bagItems.innerHTML="";
+  const items=Object.entries(state.inventory);
+  if(!items.length)bagItems.textContent="Your backpack is empty.";
+  for(const [name,count] of items){
+    const row=document.createElement("div");row.className="bagRow";
+    const a=document.createElement("span");a.textContent=name==="wood"?"🪵 Wood":name==="cat sword"?"⚔️ Cat Sword":"🍽️ "+name;
+    const b=document.createElement("b");b.textContent="× "+count;
+    row.append(a,b);bagItems.appendChild(row);
+  }
+}
+function openBag(){renderBag();bagPanel.classList.add("open")}
+function closeBag(){bagPanel.classList.remove("open")}
+function openDrawing(){drawPanel.classList.add("open")}
+function closeDrawing(){drawPanel.classList.remove("open")}
+document.getElementById("bagBtn").addEventListener("click",openBag);
+document.getElementById("bagClose").addEventListener("click",closeBag);
+document.getElementById("drawClose").addEventListener("click",closeDrawing);
+document.getElementById("buildBtn").addEventListener("click",()=>{
+  if((state.inventory.wood||0)<3){state.message="You need 3 wood to build a tiny cat house!";closeBag();return}
+  state.inventory.wood-=3;state.built++;state.message="You built a tiny cat house! 🏠✨";renderBag();closeBag();
+});
+document.getElementById("swordBtn").addEventListener("click",()=>{
+  const target=nearestInteractable();
+  if(!target||!target.foodCreature){state.message="Swish! Your cat sword sparkles. ✨";return}
+  state.removed.add(target.id);
+  const food=target.drop||"snack";
+  state.inventory[food]=(state.inventory[food]||0)+1;
+  state.message="POOF! The "+food+" critter turned into food for your backpack! ✨";
+  renderBag();
+});
+
+const dc=document.getElementById("drawing"),dg=dc.getContext("2d");
+dg.fillStyle="#fff";dg.fillRect(0,0,dc.width,dc.height);dg.lineCap="round";dg.lineWidth=5;dg.strokeStyle="#6d4a83";
+let drawing=false,last=null;
+function drawPoint(e){
+  const r=dc.getBoundingClientRect(),x=(e.clientX-r.left)*dc.width/r.width,y=(e.clientY-r.top)*dc.height/r.height;
+  if(last){dg.beginPath();dg.moveTo(last.x,last.y);dg.lineTo(x,y);dg.stroke()}
+  last={x,y};
+}
+dc.addEventListener("pointerdown",e=>{drawing=true;last=null;dc.setPointerCapture?.(e.pointerId);drawPoint(e)});
+dc.addEventListener("pointermove",e=>{if(drawing)drawPoint(e)});
+for(const ev of ["pointerup","pointercancel","lostpointercapture"])dc.addEventListener(ev,()=>{drawing=false;last=null});
+document.getElementById("clearDrawing").addEventListener("click",()=>{dg.fillStyle="#fff";dg.fillRect(0,0,dc.width,dc.height)});
+
+renderBag();
 function loop(){update();draw();requestAnimationFrame(loop)}
 loop();
 })();
