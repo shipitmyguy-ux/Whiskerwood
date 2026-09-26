@@ -7,8 +7,8 @@ const c=document.getElementById("c");
 const g=c.getContext("2d");
 g.imageSmoothingEnabled=false;
 
-const W=CFG.viewport.w,H=CFG.viewport.h;
-c.width=W;c.height=H;
+const WORLD_W=CFG.viewport.w,WORLD_H=CFG.viewport.h;
+let W=WORLD_W,H=WORLD_H,worldOffsetX=0,worldOffsetY=0;
 
 const key=Object.create(null);
 const state={
@@ -24,6 +24,24 @@ function fitGame(){
   const vv=window.visualViewport;
   const vw=Math.max(1,vv?vv.width:innerWidth);
   const vh=Math.max(1,vv?vv.height:innerHeight);
+  const aspect=vw/vh;
+  const baseAspect=WORLD_W/WORLD_H;
+
+  // Match the device aspect ratio without stretching any game art.
+  // We extend the logical world on the long axis instead.
+  if(aspect>=baseAspect){
+    H=WORLD_H;
+    W=Math.max(WORLD_W,Math.round(H*aspect));
+  }else{
+    W=WORLD_W;
+    H=Math.max(WORLD_H,Math.round(W/aspect));
+  }
+
+  worldOffsetX=Math.floor((W-WORLD_W)/2);
+  worldOffsetY=Math.floor((H-WORLD_H)/2);
+  c.width=W;
+  c.height=H;
+  g.imageSmoothingEnabled=false;
   c.style.width=Math.floor(vw)+"px";
   c.style.height=Math.floor(vh)+"px";
 }
@@ -133,15 +151,19 @@ function update(){
   const sp=CFG.player.speed;
   state.p.x+=(key.ArrowRight||key.d?sp:0)-(key.ArrowLeft||key.a?sp:0);
   state.p.y+=(key.ArrowDown||key.s?sp:0)-(key.ArrowUp||key.w?sp:0);
-  state.p.x=Math.max(12,Math.min(W-12,state.p.x));
-  state.p.y=Math.max(45,Math.min(H-42,state.p.y));
+  state.p.x=Math.max(12-worldOffsetX,Math.min(WORLD_W-12+worldOffsetX,state.p.x));
+  state.p.y=Math.max(12-worldOffsetY,Math.min(WORLD_H-12+worldOffsetY,state.p.y));
   const a=!!(key.e||key.Enter||key[" "]);
   if(a&&!actWas)interact();
   actWas=a;
 }
 
 function drawWorld(){
+  // Fill newly exposed screen area with world background, then center
+  // the original 480x270 authored playfield inside it.
   rect(0,0,W,H,CFG.palette.grass);
+  g.save();
+  g.translate(worldOffsetX,worldOffsetY);
   for(const p of CFG.paths)rect(p.x,p.y,p.w,p.h,CFG.palette.path);
   for(const d of CFG.decorations){
     const fn=decorDrawers[d.type];
@@ -150,6 +172,7 @@ function drawWorld(){
   for(const s of CFG.locations)drawLocation(s);
   for(const a of CFG.animals)emoji(a.emoji,a.x,a.y,15);
   cat();
+  g.restore();
 }
 function drawUi(){
   rect(5,5,W-10,27,CFG.palette.panel);
