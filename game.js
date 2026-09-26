@@ -247,20 +247,35 @@ document.getElementById("swordBtn")?.addEventListener("click",()=>{
   renderBag();
 });
 
-const dc=document.getElementById("drawing"),dg=dc.getContext("2d");
-dg.fillStyle="#fff";dg.fillRect(0,0,dc.width,dc.height);dg.lineCap="round";dg.lineWidth=5;dg.strokeStyle="#6d4a83";
-let drawing=false,last=null;
-function drawPoint(e){
-  const r=dc.getBoundingClientRect(),x=(e.clientX-r.left)*dc.width/r.width,y=(e.clientY-r.top)*dc.height/r.height;
-  if(last){dg.beginPath();dg.moveTo(last.x,last.y);dg.lineTo(x,y);dg.stroke()}
-  last={x,y};
+// Start the core game before optional activity setup. Optional UI must never
+// be able to prevent the town from rendering.
+function loop(){
+  try{update();draw()}catch(err){
+    console.error("Whiskerwood frame error",err);
+    state.message="Oops! A little game bug happened, but you can keep playing.";
+  }
+  requestAnimationFrame(loop);
 }
-dc.addEventListener("pointerdown",e=>{drawing=true;last=null;dc.setPointerCapture?.(e.pointerId);drawPoint(e)});
-dc.addEventListener("pointermove",e=>{if(drawing)drawPoint(e)});
-for(const ev of ["pointerup","pointercancel","lostpointercapture"])dc.addEventListener(ev,()=>{drawing=false;last=null});
-document.getElementById("clearDrawing")?.addEventListener("click",()=>{dg.fillStyle="#fff";dg.fillRect(0,0,dc.width,dc.height)});
-
-renderBag();
-function loop(){update();draw();requestAnimationFrame(loop)}
 loop();
+
+try{
+  renderBag();
+  const dc=document.getElementById("drawing");
+  const dg=dc?.getContext?.("2d");
+  if(dc&&dg){
+    dg.fillStyle="#fff";dg.fillRect(0,0,dc.width,dc.height);dg.lineCap="round";dg.lineWidth=5;dg.strokeStyle="#6d4a83";
+    let drawing=false,last=null;
+    function drawPoint(e){
+      const r=dc.getBoundingClientRect();
+      if(!r.width||!r.height)return;
+      const x=(e.clientX-r.left)*dc.width/r.width,y=(e.clientY-r.top)*dc.height/r.height;
+      if(last){dg.beginPath();dg.moveTo(last.x,last.y);dg.lineTo(x,y);dg.stroke()}
+      last={x,y};
+    }
+    dc.addEventListener("pointerdown",e=>{drawing=true;last=null;dc.setPointerCapture?.(e.pointerId);drawPoint(e)});
+    dc.addEventListener("pointermove",e=>{if(drawing)drawPoint(e)});
+    for(const ev of ["pointerup","pointercancel","lostpointercapture"])dc.addEventListener(ev,()=>{drawing=false;last=null});
+    document.getElementById("clearDrawing")?.addEventListener("click",()=>{dg.fillStyle="#fff";dg.fillRect(0,0,dc.width,dc.height)});
+  }
+}catch(err){console.error("Optional activity setup error",err)}
 })();
