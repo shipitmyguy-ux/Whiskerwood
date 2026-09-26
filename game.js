@@ -24,9 +24,8 @@ function fitGame(){
   const vv=window.visualViewport;
   const vw=Math.max(1,vv?vv.width:innerWidth);
   const vh=Math.max(1,vv?vv.height:innerHeight);
-  const scale=Math.max(vw/W,vh/H);
-  c.style.width=Math.floor(W*scale)+"px";
-  c.style.height=Math.floor(H*scale)+"px";
+  c.style.width=Math.floor(vw)+"px";
+  c.style.height=Math.floor(vh)+"px";
 }
 addEventListener("resize",fitGame);
 addEventListener("orientationchange",()=>setTimeout(fitGame,120));
