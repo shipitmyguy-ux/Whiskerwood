@@ -9,59 +9,141 @@
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;height:100dvh;overflow:hidden;background:#26382d;font-family:monospace;touch-action:none;overscroll-behavior:none}
 body{position:fixed;inset:0}
-#stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:0;pointer-events:none}
-canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges;background:#8fbd79;max-width:none;max-height:none;pointer-events:auto}
-.btn{position:fixed;width:clamp(46px,12vw,62px);height:clamp(46px,12vw,62px);border:2px solid #fff9;border-radius:16px;background:#3c5144cc;color:white;font:bold clamp(18px,5vw,25px) monospace;box-shadow:0 3px #0005;user-select:none;-webkit-user-select:none;touch-action:none;z-index:10}
-.l{left:max(12px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom))}
-.r{left:calc(max(12px,env(safe-area-inset-left)) + clamp(96px,26vw,132px));bottom:max(18px,env(safe-area-inset-bottom))}
-.u{left:calc(max(12px,env(safe-area-inset-left)) + clamp(48px,13vw,66px));bottom:calc(max(18px,env(safe-area-inset-bottom)) + clamp(50px,13vw,66px))}
-.d{left:calc(max(12px,env(safe-area-inset-left)) + clamp(48px,13vw,66px));bottom:max(18px,env(safe-area-inset-bottom))}
-.a{right:max(16px,env(safe-area-inset-right));bottom:max(22px,env(safe-area-inset-bottom));width:clamp(64px,17vw,82px);height:clamp(64px,17vw,82px);border-radius:50%;background:#c76578dd;font-size:clamp(11px,3vw,15px)}
-#error{position:fixed;inset:0;display:none;place-items:center;padding:24px;color:white;text-align:center;background:#26382d;z-index:50}
-.hudBtn{position:fixed;top:max(10px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));z-index:20;width:48px;height:48px;border:2px solid #fff9;border-radius:14px;background:#fff1cddd;font-size:24px;touch-action:manipulation}.swordBtn{right:calc(max(12px,env(safe-area-inset-right)) + 56px)}
-.panel{display:none;position:fixed;z-index:40;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92vw,390px);max-height:80%;overflow:auto;background:#fff1cd;border:4px solid #765136;border-radius:18px;padding:12px;color:#3b2d28;box-shadow:0 8px 0 #0005}.panel.open{display:block}.panelHead{display:flex;align-items:center;justify-content:space-between;font-size:18px;margin-bottom:10px}.panel button{min-height:42px;border:2px solid #765136;border-radius:10px;background:#f5d999;color:#3b2d28;font:bold 14px monospace}.panelHead button{width:42px}.bagRow{display:flex;justify-content:space-between;padding:8px 4px;border-bottom:1px solid #76513655}.drawPanel{width:min(94vw,430px)}#drawing{display:block;width:100%;height:auto;background:#fff;border:2px solid #765136;border-radius:10px;touch-action:none}.drawActions{display:flex;gap:10px;align-items:center;margin-top:8px}
-@media(pointer:fine){.btn{opacity:.35}}
-@media(orientation:landscape) and (max-height:500px){.btn{width:48px;height:48px;font-size:19px}.a{width:64px;height:64px;font-size:11px}.l,.r,.d{bottom:max(8px,env(safe-area-inset-bottom))}.u{bottom:60px}.a{bottom:max(10px,env(safe-area-inset-bottom))}}
+#stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#26382d}
+#game{display:block;image-rendering:pixelated;background:#8fbd79}
+.ctrl{position:fixed;z-index:10;width:54px;height:54px;border:2px solid #fff9;border-radius:14px;background:#33473ccc;color:white;font:bold 21px monospace;touch-action:none}
+#left{left:12px;bottom:18px}#right{left:124px;bottom:18px}#up{left:68px;bottom:74px}#down{left:68px;bottom:18px}
+#act{right:16px;bottom:22px;width:72px;height:72px;border-radius:50%;background:#c76578dd;font-size:12px}
+.hud{position:fixed;z-index:12;top:10px;width:48px;height:48px;border:2px solid #fff9;border-radius:13px;background:#fff1cddd;font-size:23px}
+#bagBtn{right:12px}#swordBtn{right:68px}
+.panel{display:none;position:fixed;z-index:30;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92vw,390px);max-height:80%;overflow:auto;background:#fff1cd;border:4px solid #765136;border-radius:16px;padding:12px;color:#3b2d28}
+.panel.open{display:block}.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.panel button{min-height:40px;border:2px solid #765136;border-radius:9px;background:#f5d999;font:bold 14px monospace}
+.row{display:flex;justify-content:space-between;padding:7px 3px;border-bottom:1px solid #76513655}
+#drawing{display:block;width:100%;height:auto;background:#fff;border:2px solid #765136;border-radius:8px;touch-action:none}
+@media(pointer:fine){.ctrl{opacity:.45}}
 </style>
 </head>
 <body>
-<div id="stage"><canvas id="c" width="480" height="270"></canvas></div>
-<button class="btn l" data-k="ArrowLeft" aria-label="move left">◀</button>
-<button class="btn r" data-k="ArrowRight" aria-label="move right">▶</button>
-<button class="btn u" data-k="ArrowUp" aria-label="move up">▲</button>
-<button class="btn d" data-k="ArrowDown" aria-label="move down">▼</button>
-<button class="btn a" data-k="e" aria-label="interact">🐾<br>ACT</button>
-<button id="bagBtn" class="hudBtn" type="button" aria-label="open backpack">🎒</button>
-<button id="swordBtn" class="hudBtn swordBtn" type="button" aria-label="use cat sword">⚔️</button>
-<div id="bagPanel" class="panel" aria-live="polite">
-  <div class="panelHead"><b>🎒 BACKPACK</b><button id="bagClose" type="button">✕</button></div>
-  <div id="bagItems"></div>
-  <button id="buildBtn" type="button">🪵 BUILD WITH WOOD</button>
-</div>
-<div id="drawPanel" class="panel drawPanel">
-  <div class="panelHead"><b>🎨 DRAWING TIME</b><button id="drawClose" type="button">✕</button></div>
-  <canvas id="drawing" width="300" height="170" aria-label="drawing canvas"></canvas>
-  <div class="drawActions"><button id="clearDrawing" type="button">Clear</button><span>Draw with your finger!</span></div>
-</div>
-<div id="error">Whiskerwood could not load. Refresh to try again.</div>
+<div id="stage"><canvas id="game"></canvas></div>
+<button id="left" class="ctrl">◀</button><button id="right" class="ctrl">▶</button><button id="up" class="ctrl">▲</button><button id="down" class="ctrl">▼</button>
+<button id="act" class="ctrl">🐾<br>ACT</button>
+<button id="bagBtn" class="hud">🎒</button><button id="swordBtn" class="hud">⚔️</button>
+
+<div id="bag" class="panel"><div class="head"><b>🎒 BACKPACK</b><button id="bagClose">✕</button></div><div id="items"></div><button id="buildBtn">🪵 BUILD WITH 3 WOOD</button></div>
+<div id="draw" class="panel"><div class="head"><b>🎨 DRAWING TIME</b><button id="drawClose">✕</button></div><canvas id="drawing" width="300" height="170"></canvas><p>Draw with your finger!</p><button id="clearDraw">Clear</button></div>
+
 <script>
-(async()=>{
-  // Cache-busting is intentional: child-directed edits should appear immediately on reload.
-  const v=Date.now();
-  const load=src=>new Promise((resolve,reject)=>{
-    const s=document.createElement("script");
-    s.src=src+"?v="+v;
-    s.onload=resolve;
-    s.onerror=reject;
-    document.body.appendChild(s);
-  });
-  try{
-    await load("game-data.js");
-    await load("game.js");
-  }catch(err){
-    console.error(err);
-    document.getElementById("error").style.display="grid";
-  }
+(function(){
+"use strict";
+var BASE_W=480, BASE_H=270;
+var c=document.getElementById("game"), g=c.getContext("2d");
+var W=BASE_W,H=BASE_H,offX=0,offY=0;
+var key={left:false,right:false,up:false,down:false};
+var p={x:240,y:170}, coins=0, msg="Go to school! 🎒", school=false, wood=0, built=0;
+var food={apple:0,toast:0,carrot:0};
+var removed={};
+
+var locations=[
+ {id:"home",label:"MY HOUSE",x:80,y:78,w:86,h:54,col:"#d8b17a",icon:"🏠",msg:"Home sweet home! 🏠"},
+ {id:"school",label:"SCHOOL",x:240,y:60,w:104,h:56,col:"#d89c72",icon:"🕘",msg:"You made it to school! ⭐"},
+ {id:"slide",label:"SLIDE",x:325,y:96,w:44,h:30,col:"#e6c74f",icon:"🛝",msg:"Wheeee! Down the slide! 🛝"},
+ {id:"swings",label:"SWINGS",x:374,y:62,w:50,h:30,col:"#78a7ce",icon:"🎠",msg:"Higher and higher! Wheee!"},
+ {id:"sandbox",label:"SAND",x:150,y:105,w:48,h:30,col:"#e7cb82",icon:"🏖️",msg:"You made a cat-ear sand castle!"},
+ {id:"draw",label:"DRAW",x:185,y:66,w:44,h:28,col:"#c88cc9",icon:"🎨",msg:"Drawing time!"},
+ {id:"wood",label:"WOOD",x:120,y:146,w:44,h:25,col:"#a9774e",icon:"🪵",msg:"You picked up wood!"},
+ {id:"build",label:"BUILD",x:166,y:146,w:46,h:25,col:"#9e8a6b",icon:"🔨",msg:"Open your backpack to build!"},
+ {id:"market",label:"MARKET",x:390,y:108,w:76,h:46,col:"#d8798e",icon:"🧁",msg:"The market smells like cupcakes!"},
+ {id:"lake",label:"LAKE",x:392,y:211,w:90,h:46,col:"#71aeca",icon:"🐟",msg:"A frog waves from the lake!"},
+ {id:"forest",label:"FOREST",x:82,y:212,w:102,h:50,col:"#56825b",icon:"🌲",msg:"The forest is full of adventures!"}
+];
+
+var people=[
+ {name:"Miss Maple",x:265,y:112,coat:"#c98252",shirt:"#8a69a8",msg:"Miss Maple: Good morning! 🎨"},
+ {name:"Milo",x:300,y:138,coat:"#e4b86d",shirt:"#5d8dbb",msg:"Milo: Race you to the slide!"},
+ {name:"Luna",x:344,y:132,coat:"#d9d7d2",shirt:"#d47d9b",msg:"Luna: Let's play on the swings!"},
+ {name:"Pepper",x:406,y:146,coat:"#56545b",shirt:"#d49b55",msg:"Pepper: Cupcakes are my favorite!"},
+ {name:"Ginger",x:355,y:197,coat:"#d47743",shirt:"#72a56d",msg:"Ginger: I saw a frog!"},
+ {name:"Snowball",x:205,y:204,coat:"#f0eee8",shirt:"#73a4bd",msg:"Snowball: I'm collecting flowers!"},
+ {name:"Mochi",x:110,y:177,coat:"#c6a886",shirt:"#b6769d",msg:"Mochi: Let's build something!"},
+ {name:"Bean",x:62,y:130,coat:"#9b765e",shirt:"#7d9c58",msg:"Bean: Hi neighbor!"}
+];
+
+var critters=[
+ {id:"apple",x:54,y:198,icon:"🍎",drop:"apple"},
+ {id:"toast",x:90,y:202,icon:"🍞",drop:"toast"},
+ {id:"carrot",x:54,y:226,icon:"🥕",drop:"carrot"}
+];
+
+function fit(){
+ var vv=window.visualViewport, vw=Math.max(1,vv?vv.width:innerWidth), vh=Math.max(1,vv?vv.height:innerHeight);
+ var aspect=vw/vh, base=BASE_W/BASE_H;
+ if(aspect>=base){H=BASE_H;W=Math.round(H*aspect)}else{W=BASE_W;H=Math.round(W/aspect)}
+ offX=Math.floor((W-BASE_W)/2);offY=Math.floor((H-BASE_H)/2);
+ c.width=W;c.height=H;g.imageSmoothingEnabled=false;
+ c.style.width=vw+"px";c.style.height=vh+"px";
+}
+fit();addEventListener("resize",fit);addEventListener("orientationchange",function(){setTimeout(fit,100)});
+
+function rect(x,y,w,h,col){g.fillStyle=col;g.fillRect(x,y,w,h)}
+function text(t,x,y,size,col,align){g.fillStyle=col||"#3b2d28";g.font="bold "+(size||8)+"px monospace";g.textAlign=align||"left";g.fillText(t,x,y);g.textAlign="left"}
+function emo(t,x,y,size){g.font=(size||14)+"px sans-serif";g.textAlign="center";g.fillText(t,x,y);g.textAlign="left"}
+function tree(x,y){rect(x-4,y-16,8,18,"#795a3c");g.fillStyle="#4f8055";g.beginPath();g.arc(x,y-19,15,0,Math.PI*2);g.fill()}
+function npc(o){rect(o.x-7,o.y-12,14,13,o.coat);rect(o.x-6,o.y-16,5,6,o.coat);rect(o.x+1,o.y-16,5,6,o.coat);rect(o.x-4,o.y-8,2,2,"#222");rect(o.x+2,o.y-8,2,2,"#222");rect(o.x-8,o.y,16,10,o.shirt);text(o.name,o.x,o.y-20,6,"#3b2d28","center")}
+function player(){rect(p.x-8,p.y-11,16,16,"#f0e2cb");rect(p.x-7,p.y-16,5,6,"#e28a55");rect(p.x+2,p.y-16,5,6,"#888");rect(p.x-5,p.y-8,2,2,"#222");rect(p.x+3,p.y-8,2,2,"#222");rect(p.x-9,p.y+3,18,10,"#7396c8")}
+
+function world(){
+ rect(0,0,W,H,"#8fbd79");
+ g.save();g.translate(offX,offY);
+ rect(213,0,54,270,"#dfc18c");rect(0,145,480,46,"#dfc18c");
+ [20,68,116,164,308,356,404,452].forEach(function(x){tree(x,32);tree(x,250)});
+ locations.forEach(function(o){rect(o.x-o.w/2,o.y-o.h/2,o.w,o.h,o.col);rect(o.x-o.w/2+7,o.y+o.h/2-11,o.w-14,11,"#7b553d");text(o.label,o.x,o.y-3,8,"#fff","center");emo(o.icon,o.x,o.y+14,13)});
+ people.forEach(npc);
+ critters.forEach(function(o){if(!removed[o.id])emo(o.icon,o.x,o.y,15)});
+ for(var i=0;i<built;i++)emo("🏠",214+i*18,132,16);
+ player();g.restore();
+}
+function ui(){
+ rect(5,5,W-10,27,"#fff1cddd");text("🐱 WHISKERWOOD",12,22,11);text("⭐ "+coins,W-18,22,10,"#3b2d28","right");
+ rect(7,36,180,38,"#fff1cddd");text("TODAY:",14,50,8);text((school?"✓ ":"□ ")+"Go to school",14,65,9,school?"#39724b":"#3b2d28");
+ rect(8,H-32,W-16,25,"#fff1cddd");text(msg,15,H-15,8);
+}
+function near(x,y,r){return Math.hypot(p.x-x,p.y-y)<r}
+function interact(){
+ var best=null,dist=999;
+ locations.forEach(function(o){var d=Math.hypot(p.x-o.x,p.y-o.y);if(d<58&&d<dist){best={type:"loc",o:o};dist=d}});
+ people.forEach(function(o){var d=Math.hypot(p.x-o.x,p.y-o.y);if(d<40&&d<dist){best={type:"person",o:o};dist=d}});
+ critters.forEach(function(o){if(!removed[o.id]){var d=Math.hypot(p.x-o.x,p.y-o.y);if(d<34&&d<dist){best={type:"critter",o:o};dist=d}}});
+ if(!best){msg="Nothing to interact with here.";return}
+ if(best.type==="person"){msg=best.o.msg;return}
+ var o=best.o;msg=o.msg||"Hello!";
+ if(o.id==="school"){school=true;coins+=school?0:5}
+ if(o.id==="draw"){openDraw()}
+ if(o.id==="wood"){wood++;msg="You picked up wood! 🪵 ("+wood+")"}
+ if(o.id==="build"){openBag()}
+}
+function update(){var sp=1.7;if(key.left)p.x-=sp;if(key.right)p.x+=sp;if(key.up)p.y-=sp;if(key.down)p.y+=sp;p.x=Math.max(10,Math.min(470,p.x));p.y=Math.max(18,Math.min(255,p.y))}
+function loop(){update();world();ui();requestAnimationFrame(loop)}requestAnimationFrame(loop);
+
+function bind(id,k){var b=document.getElementById(id);["pointerdown"].forEach(function(ev){b.addEventListener(ev,function(e){e.preventDefault();key[k]=true;b.setPointerCapture&&b.setPointerCapture(e.pointerId)})});["pointerup","pointercancel","lostpointercapture"].forEach(function(ev){b.addEventListener(ev,function(){key[k]=false})})}
+bind("left","left");bind("right","right");bind("up","up");bind("down","down");
+document.getElementById("act").addEventListener("click",interact);
+addEventListener("keydown",function(e){if(e.key==="ArrowLeft"||e.key==="a")key.left=true;if(e.key==="ArrowRight"||e.key==="d")key.right=true;if(e.key==="ArrowUp"||e.key==="w")key.up=true;if(e.key==="ArrowDown"||e.key==="s")key.down=true;if(e.key==="e"||e.key==="Enter")interact()});
+addEventListener("keyup",function(e){if(e.key==="ArrowLeft"||e.key==="a")key.left=false;if(e.key==="ArrowRight"||e.key==="d")key.right=false;if(e.key==="ArrowUp"||e.key==="w")key.up=false;if(e.key==="ArrowDown"||e.key==="s")key.down=false});
+
+var bag=document.getElementById("bag"),items=document.getElementById("items");
+function renderBag(){items.innerHTML="";[["🪵 Wood",wood],["⚔️ Cat Sword",1],["🍎 Apple",food.apple],["🍞 Toast",food.toast],["🥕 Carrot",food.carrot]].forEach(function(it){var r=document.createElement("div");r.className="row";r.textContent=it[0]+" × "+it[1];items.appendChild(r)})}
+function openBag(){renderBag();bag.classList.add("open")}function closeBag(){bag.classList.remove("open")}
+document.getElementById("bagBtn").onclick=openBag;document.getElementById("bagClose").onclick=closeBag;
+document.getElementById("buildBtn").onclick=function(){if(wood<3){msg="You need 3 wood to build!";closeBag();return}wood-=3;built++;msg="You built a tiny cat house! 🏠";closeBag()};
+document.getElementById("swordBtn").onclick=function(){var hit=null;critters.forEach(function(o){if(!removed[o.id]&&near(o.x,o.y,36))hit=o});if(!hit){msg="Swish! Cat sword sparkle! ✨";return}removed[hit.id]=true;food[hit.drop]++;msg="POOF! The "+hit.drop+" critter turned into food! ✨"};
+
+var draw=document.getElementById("draw"),dc=document.getElementById("drawing"),dg=dc.getContext("2d"),drawing=false,last=null;
+function openDraw(){draw.classList.add("open")}function closeDraw(){draw.classList.remove("open")}
+document.getElementById("drawClose").onclick=closeDraw;document.getElementById("clearDraw").onclick=function(){dg.fillStyle="#fff";dg.fillRect(0,0,dc.width,dc.height)};
+dg.fillStyle="#fff";dg.fillRect(0,0,dc.width,dc.height);dg.strokeStyle="#6d4a83";dg.lineWidth=5;dg.lineCap="round";
+dc.addEventListener("pointerdown",function(e){drawing=true;last=null;dc.setPointerCapture&&dc.setPointerCapture(e.pointerId)});
+dc.addEventListener("pointermove",function(e){if(!drawing)return;var r=dc.getBoundingClientRect(),x=(e.clientX-r.left)*dc.width/r.width,y=(e.clientY-r.top)*dc.height/r.height;if(last){dg.beginPath();dg.moveTo(last.x,last.y);dg.lineTo(x,y);dg.stroke()}last={x:x,y:y}});
+["pointerup","pointercancel","lostpointercapture"].forEach(function(ev){dc.addEventListener(ev,function(){drawing=false;last=null})});
 })();
 </script>
 </body>
