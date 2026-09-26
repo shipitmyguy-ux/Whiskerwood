@@ -3,7 +3,7 @@
 // Add/move/change buildings, animals, messages, rewards, quests, colors, and speed here.
 window.WHISKERWOOD={
   schema:1,
-  build:"rapid-2",
+  build:"rapid-3",
   viewport:{w:480,h:270},
   player:{
     start:{x:240,y:170},
@@ -41,6 +41,12 @@ window.WHISKERWOOD={
       id:"school",label:"SCHOOL",x:240,y:62,w:100,h:54,color:"#d89c72",emoji:"🕘",
       interaction:{message:"You made it to school! ⭐ Welcome, kitty!",completeQuest:"school",coins:5,once:true}
     },
+    {id:"slide",label:"SLIDE",x:325,y:92,w:44,h:30,color:"#e6c74f",emoji:"🛝",interaction:{message:"Wheeee! You zoom down the slide! 🛝",coins:1,once:true}},
+    {id:"swings",label:"SWINGS",x:370,y:62,w:48,h:28,color:"#78a7ce",emoji:"🎠",interaction:{message:"Back and forth... higher and higher! Wheee!"}},
+    {id:"sandbox",label:"SAND",x:150,y:105,w:50,h:30,color:"#e7cb82",emoji:"🏖️",interaction:{message:"You make a tiny sand castle with cat ears! 🏰"}},
+    {id:"drawing-table",label:"DRAW",x:185,y:65,w:44,h:28,color:"#c88cc9",emoji:"🎨",interaction:{message:"Drawing time! 🎨",action:"draw"}},
+    {id:"wood-pile",label:"WOOD",x:120,y:145,w:42,h:25,color:"#a9774e",emoji:"🪵",interaction:{message:"You picked up some wood! 🪵",item:"wood"}},
+    {id:"build-spot",label:"BUILD",x:165,y:145,w:46,h:25,color:"#9e8a6b",emoji:"🔨",interaction:{message:"Open your backpack and build something here!",action:"build"}},
     {
       id:"home",label:"MY HOUSE",x:85,y:78,w:90,h:58,color:"#d8b17a",emoji:"🏠",
       interaction:{message:"Home sweet home! 🏠"}
