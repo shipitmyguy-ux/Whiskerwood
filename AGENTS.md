@@ -16,7 +16,7 @@ Requests come from children, so keep changes tiny and visible.
 4. A new building needs a matching room with the same id in `rooms` and an exit object (`kind: "exit"`).
 5. No new dependencies or build tooling. Keep 480x270 internal resolution.
 6. Keep `game-data.js` valid JavaScript (commas, quotes). A syntax error blanks the game.
-7. One commit per request, plain message. Push to `main` only when the owner asks; otherwise use a branch.
+7. Kid content requests: one commit per batch of requests, pushed to `main` so Pages puts it live (see the kid-change skill). Engine changes go on a branch with a pull request.
 
 ## Checking
 Serve the folder (`python3 -m http.server`) and open `index.html`. The password gate is skipped by setting localStorage `familyGamesUnlock` to the hash in `gate.js`.
