@@ -14,6 +14,7 @@ window.GAME_DATA = {
   title: { tabTitle: "Whiskerwood", icon: "🐱", hudTitle: "WHISKERWOOD", coinIcon: "⭐" },
 
   // ---- Our kitty and where she starts ----
+  // Optional img: "assets/player.png" draws a picture instead of the colours (shirt colour then won't show).
   player: {
     start: { x: 240, y: 170, coins: 0, shirt: "#7396c8" }, // where she starts, coins, shirt colour
     enterRoomAt: { x: 240, y: 205 },   // where she stands after walking into a building
@@ -130,7 +131,7 @@ window.GAME_DATA = {
     ],
 
     // Townspeople and animals. Tap one to hear what they say.
-    // To add one: copy a line. coat = fur colour, shirt = shirt colour.
+    // To add one: copy a line. coat = fur colour, shirt = shirt colour. Optional img: "assets/<id>.png".
     people: [
       { name: "Miss Maple", x: 265, y: 112, coat: "#c98252", shirt: "#8a69a8", msg: "Miss Maple: Come inside school! 🎨" },
       { name: "Milo",       x: 300, y: 138, coat: "#e4b86d", shirt: "#5d8dbb", msg: "Milo: The park has a giant slide!" },

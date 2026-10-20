@@ -8,7 +8,7 @@ Requests come from children, so keep changes tiny and visible.
 - `engine.js` - mechanics only. Reads everything from `GAME_DATA`.
 - `index.html` - markup and CSS. Loads `gate.js`, `game-data.js`, `engine.js` (the last two with `?v=Date.now()` cache-busting).
 - `gate.js` - family password screen. Do not change unless asked.
-- `assets/` - pictures. An entry with `icon` may add `img: "assets/<id>.png"` (emoji is the fallback). See add-art skill; never view images.
+- `assets/` - pictures. An entry with `icon`, a person, or `player` may add `img: "assets/<id>.png"` (emoji or drawn rectangles are the fallback). See add-art skill; never view images.
 
 ## Rules
 1. Almost every request is a data edit: change ONLY `game-data.js`. Copy a neighbouring entry and adjust it; each block's comment explains the fields.

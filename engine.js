@@ -42,9 +42,10 @@ var imgs={};(function walk(v){if(v&&typeof v==="object")for(var k in v){var s=v[
 function emo(t,x,y,size,o){var m=o&&o.img&&imgs[o.img],s=size||14;
  if(m&&m.ok){var r=Math.min(s/m.naturalWidth,s/m.naturalHeight),w=m.naturalWidth*r,h=m.naturalHeight*r;g.drawImage(m,x-w/2,y-s*.85+(s-h)/2,w,h);return}
  g.font=s+"px sans-serif";g.textAlign="center";g.fillText(t,x,y);g.textAlign="left"}
+function pic(o,x,y,w,h){var m=o.img&&imgs[o.img];if(!(m&&m.ok))return;var r=Math.min(w/m.naturalWidth,h/m.naturalHeight),a=m.naturalWidth*r,b=m.naturalHeight*r;g.drawImage(m,x+(w-a)/2,y+h-b,a,b);return 1}
 function tree(x,y){rect(x-4,y-16,8,18,TOWN.treeStyle.trunk);g.fillStyle=TOWN.treeStyle.leaves;g.beginPath();g.arc(x,y-19,15,0,Math.PI*2);g.fill()}
-function npc(o){rect(o.x-7,o.y-12,14,13,o.coat);rect(o.x-6,o.y-16,5,6,o.coat);rect(o.x+1,o.y-16,5,6,o.coat);rect(o.x-4,o.y-8,2,2,"#222");rect(o.x+2,o.y-8,2,2,"#222");rect(o.x-8,o.y,16,10,o.shirt);text(o.name,o.x,o.y-20,6,"#3b2d28","center")}
-function player(){rect(p.x-8,p.y-11,16,16,P.fur);rect(p.x-7,p.y-16,5,6,P.earLeft);rect(p.x+2,p.y-16,5,6,P.earRight);rect(p.x-5,p.y-8,2,2,P.eyes);rect(p.x+3,p.y-8,2,2,P.eyes);rect(p.x-9,p.y+3,18,10,shirt)}
+function npc(o){if(pic(o,o.x-8,o.y-16,16,26))text(o.name,o.x,o.y-20,6,"#3b2d28","center");else{rect(o.x-7,o.y-12,14,13,o.coat);rect(o.x-6,o.y-16,5,6,o.coat);rect(o.x+1,o.y-16,5,6,o.coat);rect(o.x-4,o.y-8,2,2,"#222");rect(o.x+2,o.y-8,2,2,"#222");rect(o.x-8,o.y,16,10,o.shirt);text(o.name,o.x,o.y-20,6,"#3b2d28","center")}}
+function player(){if(pic(P,p.x-9,p.y-16,18,29))return;rect(p.x-8,p.y-11,16,16,P.fur);rect(p.x-7,p.y-16,5,6,P.earLeft);rect(p.x+2,p.y-16,5,6,P.earRight);rect(p.x-5,p.y-8,2,2,P.eyes);rect(p.x+3,p.y-8,2,2,P.eyes);rect(p.x-9,p.y+3,18,10,shirt)}
 
 function drawTown(){
  rect(0,0,BASE_W,BASE_H,TOWN.grass);
