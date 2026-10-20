@@ -38,7 +38,10 @@ fit();addEventListener("resize",fit);addEventListener("orientationchange",functi
 
 function rect(x,y,w,h,col){g.fillStyle=col;g.fillRect(x,y,w,h)}
 function text(t,x,y,size,col,align){g.fillStyle=col||"#3b2d28";g.font="bold "+(size||8)+"px monospace";g.textAlign=align||"left";g.fillText(t,x,y);g.textAlign="left"}
-function emo(t,x,y,size){g.font=(size||14)+"px sans-serif";g.textAlign="center";g.fillText(t,x,y);g.textAlign="left"}
+var imgs={};(function walk(v){if(v&&typeof v==="object")for(var k in v){var s=v[k];if(k==="img"&&typeof s==="string"){if(!imgs[s]){var i=new Image();i.onload=function(){this.ok=1};i.src=s;imgs[s]=i}}else walk(s)}})(D);
+function emo(t,x,y,size,o){var m=o&&o.img&&imgs[o.img],s=size||14;
+ if(m&&m.ok){var r=Math.min(s/m.naturalWidth,s/m.naturalHeight),w=m.naturalWidth*r,h=m.naturalHeight*r;g.drawImage(m,x-w/2,y-s*.85+(s-h)/2,w,h);return}
+ g.font=s+"px sans-serif";g.textAlign="center";g.fillText(t,x,y);g.textAlign="left"}
 function tree(x,y){rect(x-4,y-16,8,18,TOWN.treeStyle.trunk);g.fillStyle=TOWN.treeStyle.leaves;g.beginPath();g.arc(x,y-19,15,0,Math.PI*2);g.fill()}
 function npc(o){rect(o.x-7,o.y-12,14,13,o.coat);rect(o.x-6,o.y-16,5,6,o.coat);rect(o.x+1,o.y-16,5,6,o.coat);rect(o.x-4,o.y-8,2,2,"#222");rect(o.x+2,o.y-8,2,2,"#222");rect(o.x-8,o.y,16,10,o.shirt);text(o.name,o.x,o.y-20,6,"#3b2d28","center")}
 function player(){rect(p.x-8,p.y-11,16,16,P.fur);rect(p.x-7,p.y-16,5,6,P.earLeft);rect(p.x+2,p.y-16,5,6,P.earRight);rect(p.x-5,p.y-8,2,2,P.eyes);rect(p.x+3,p.y-8,2,2,P.eyes);rect(p.x-9,p.y+3,18,10,shirt)}
@@ -47,17 +50,17 @@ function drawTown(){
  rect(0,0,BASE_W,BASE_H,TOWN.grass);
  TOWN.roads.forEach(function(r){rect(r.x,r.y,r.w,r.h,r.color)});
  TOWN.trees.forEach(function(t){tree(t.x,t.y)});
- town.forEach(function(o){rect(o.x-o.w/2,o.y-o.h/2,o.w,o.h,o.color);rect(o.x-o.w/2+7,o.y+o.h/2-11,o.w-14,11,TOWN.doorColor);text(o.label,o.x,o.y-3,8,"#fff","center");emo(o.icon,o.x,o.y+14,13)});
+ town.forEach(function(o){rect(o.x-o.w/2,o.y-o.h/2,o.w,o.h,o.color);rect(o.x-o.w/2+7,o.y+o.h/2-11,o.w-14,11,TOWN.doorColor);text(o.label,o.x,o.y-3,8,"#fff","center");emo(o.icon,o.x,o.y+14,13,o)});
  people.forEach(npc);
 }
 function drawRoom(){
  var r=rooms[scene];rect(0,0,BASE_W,BASE_H,r.floor);rect(0,0,BASE_W,34,r.wall);text(r.name,240,23,13,"#fff","center");
- for(var i=0;i<r.objects.length;i++){var o=r.objects[i];if(gone(o))continue;rect(o.x-o.w/2,o.y-o.h/2,o.w,o.h,o.color);emo(o.icon,o.x,o.y+7,18);if(o.kind!=="exit"){text((o.label||o.id).toUpperCase(),o.x,o.y-o.h/2-4,6,"#3b2d28","center");text(U.pawIcon,o.x+o.w/2-8,o.y-o.h/2+8,7,"#3b2d28","center")}}
+ for(var i=0;i<r.objects.length;i++){var o=r.objects[i];if(gone(o))continue;rect(o.x-o.w/2,o.y-o.h/2,o.w,o.h,o.color);emo(o.icon,o.x,o.y+7,18,o);if(o.kind!=="exit"){text((o.label||o.id).toUpperCase(),o.x,o.y-o.h/2-4,6,"#3b2d28","center");text(U.pawIcon,o.x+o.w/2-8,o.y-o.h/2+8,7,"#3b2d28","center")}}
 }
 function world(){
  rect(0,0,W,H,"#26382d");g.save();g.translate(offX,offY);
  if(scene==="town")drawTown();else drawRoom();
- for(var i=0;i<builtCount;i++)emo(B.icon,B.firstX+i*B.spacing,B.y,B.size);
+ for(var i=0;i<builtCount;i++)emo(B.icon,B.firstX+i*B.spacing,B.y,B.size,B);
  player();g.restore();
 }
 function ui(){
